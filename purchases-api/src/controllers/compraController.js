@@ -127,7 +127,6 @@ const modificarCompra = async (req, res) => {
             });
         }
         const total = parseInt(productoBusqueda.precio, 10) * parseInt(cantidad, 10);
-
         await busqueda.update({ cantidad, total });
         return res.status(204);
     } catch (error) {
