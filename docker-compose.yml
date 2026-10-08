@@ -1,8 +1,26 @@
 services:
 
-  
-  api:
-    build: .
+  #Servicio 1, cliente-api
+  cliente-api:
+    build: ./clients-api
+    ports:
+      - "3001:3001"
+    environment:
+    #es db!!!!, no copiarlo tal cual del .env
+       HOST: ${HOST}          # nombre del servicio de base de datos
+       PORT_DB: ${PORT_DB}
+       DATABASE: ${DATABASE}
+       USER: ${USER}
+       PASSWORD: ${PASSWORD}
+       PORT: ${PORT_CLI}
+    depends_on:
+      db:
+        condition: service_healthy  # espera a que PostgreSQL esté listo
+    restart: unless-stopped
+
+  #Servicio 2, producto-api
+  producto-api:
+    build: ./products-api
     ports:
       - "3002:3002"
     environment:
@@ -12,19 +30,39 @@ services:
        DATABASE: ${DATABASE}
        USER: ${USER}
        PASSWORD: ${PASSWORD}
-       PORT: ${PORT}
+       PORT: ${PORT_PRO}
     depends_on:
       db:
         condition: service_healthy  # espera a que PostgreSQL esté listo
     restart: unless-stopped
 
-  # Servicio 2: PostgreSQL
+    #Servicio 3, compras-api
+  compra-api:
+    build: ./purchases-api
+    ports:
+      - "3003:3003"
+    environment:
+    #es db!!!!, no copiarlo tal cual del .env
+       HOST: ${HOST}          # nombre del servicio de base de datos
+       PORT_DB: ${PORT_DB}
+       DATABASE: ${DATABASE}
+       USER: ${USER}
+       PASSWORD: ${PASSWORD}
+       PORT: ${PORT_PRO}
+    depends_on:
+      db:
+        condition: service_healthy  # espera a que PostgreSQL esté listo
+    restart: unless-stopped
+
+  
+
+  # Servicio 4: PostgreSQL
   db:
     image: postgres:16-alpine
     environment:
-      - POSTGRES_DB=tienda_backend
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${DATABASE}
+      - POSTGRES_USER=${USER}
+      - POSTGRES_PASSWORD=${PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data  # los datos persisten aunque el contenedor se reinicie
     healthcheck:
